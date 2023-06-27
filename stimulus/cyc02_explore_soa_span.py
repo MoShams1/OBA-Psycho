@@ -1,0 +1,192 @@
+"""
+Mo Shams <MShamsCBR@gmail.com>
+June 2023
+---
+
+The subject's task is to decide which of the two peripheral images appeared
+first.
+
+XX repetitions
+XX spatio-temporal conditions
+
+"""
+
+import os
+import warnings
+import numpy as np
+import pandas as pd
+from psychopy import visual, event, core
+from lib import config_visual as cvis, timestamp, keymouse
+
+# ----------------------------------------------------------------------------
+# turn off Numpy's FutureWarning
+warnings.simplefilter(action='ignore', category=FutureWarning)
+# ----------------------------------------------------------------------------
+
+# /// GENERAL SETTINGS ///
+
+subID = 'test'
+rep_per_cnd = 10  # repetition per condition
+full_screen = False
+running_device = 'mac'  # 'linux' or 'mac'
+
+n_cnds = 12
+n_trials = rep_per_cnd * n_cnds
+frame_rate = 60
+# ----------------------------------------------------------------------------
+
+# /// SET UP DIRECTORY PATHS ///
+
+save_folder = os.path.join('..', 'data', 'cyc02')
+image_folder = os.path.join('image', 'source_cyc02')
+
+save_path = \
+    os.path.join(save_folder,
+                 f"{subID}_soa_{timestamp.getdate()}_"
+                 f"{timestamp.gettime()}.json")
+# ----------------------------------------------------------------------------
+
+# /// CONFIGURE VISUAL OBJECTS ///
+
+# /// frame rate downsampling
+# division by 60 to obtain 60 Hz (16.67 ms per frame) regardless of actual
+# frame rate
+frame_rate_rep = int(frame_rate / 60)
+practical_fr = int(frame_rate / frame_rate_rep)
+
+# /// background
+bg_color = [0, 0, 0]
+
+# /// temporal gap
+# sec x Hz = frames
+gap_dur_arr = np.round(np.arange(1, 1.5, .1) * practical_fr)
+gap_dur_arr = gap_dur_arr.astype(int)
+
+# /// fixation dot
+fixdot_size = .7
+fixdot_pos = (0, 0)
+fixdot_color = 'black'
+fixdot_dur = 1 * practical_fr  # sec x Hz = frames
+
+# /// image
+im_size = 3
+im_ecc = 10
+im_dur = int(.2 * practical_fr)  # in frames
+im1_frames = np.round(np.arange(1, 1.5, .1) * practical_fr)
+im1_frames = im1_frames.astype(int)
+# ----------------------------------------------------------------------------
+
+# # /// CONFIGURE MONITOR AND SCREEN ///
+
+if running_device == 'linux':
+    mon = cvis.configmon_dell()
+    win = cvis.configwin(mon=mon, fullscr=full_screen, color=bg_color)
+else:
+    mon = cvis.configmon_macair()
+    win = cvis.configwin_macair(mon=mon, fullscr=full_screen, color=bg_color)
+cvis.test_framerate(win=win, nominal_fr=frame_rate)
+# ----------------------------------------------------------------------------
+
+# /// CONDITIONING ///
+
+ind_cnd = np.arange(n_trials)
+np.random.shuffle(ind_cnd)
+
+# soa array
+soa_array = np.repeat(np.arange(0, n_cnds, 1), rep_per_cnd)[ind_cnd]
+
+# position array
+im1_pos_array = np.tile(np.repeat([-im_ecc, im_ecc], rep_per_cnd / 2), 12)
+
+keypress_flag = False
+# ----------------------------------------------------------------------------
+
+# /// START TRIAL ///
+
+for itrial in range(n_trials):
+
+    # -------------------------------
+
+    # /// set up trial variables
+
+    im1_frame = np.random.choice(im1_frames)
+    im2_frame = im1_frame + soa_array[itrial]
+
+    im1_pos = im1_pos_array[itrial]
+    im2_pos = -im1_pos
+
+    # decide on annulus type
+    im_directory = os.path.join(image_folder, 'ring_noise.png')
+    im1 = visual.ImageStim(win,
+                           image=im_directory,
+                           size=im_size,
+                           pos=(im1_pos, 0))
+
+    im2 = visual.ImageStim(win,
+                           image=im_directory,
+                           size=im_size,
+                           pos=(im2_pos, 0))
+
+    # decide on gap durations
+    firstgap_dur = np.random.choice(gap_dur_arr)
+    # -------------------------------
+
+    # /// run task
+
+    # gap period
+    for frame in range(firstgap_dur):
+        win.flip()
+
+    # stimulus onsets period
+    for iframe in range(im2_frame + im_dur):
+        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                       color=fixdot_color)
+        if iframe >= im1_frame:
+            im1.draw()
+        if iframe >= im2_frame:
+            im2.draw()
+
+        win.flip()
+
+    win.flip()
+    cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                   color=fixdot_color)
+    win.flip()
+    keymouse.escape_session()
+    pressed_key = event.waitKeys(keyList=['left', 'right', 'escape'])
+
+    # check input keys
+    if 'escape' in pressed_key:
+        core.quit()
+
+    # gap period
+    for frame in range(int(.5 * practical_fr)):
+        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                       color='darkred')
+        win.flip()
+
+    # -------------------------------
+
+    # /// save data
+
+    # create a dictionary
+    trial_dict = {
+        'trial_num': [itrial + 1],
+        'frame_rate': [frame_rate],
+        'im1_pos': [im1_pos],
+        'response': [pressed_key],
+        'soa': [soa_array[itrial]]
+    }
+
+    # convert to data frame
+    dfnew = pd.DataFrame(trial_dict)
+
+    # if first trial create a file, else load and add the new data frame
+    if itrial == 0:
+        dfnew.to_json(save_path)
+    else:
+        df = pd.read_json(save_path)
+        dfnew = pd.concat([df, dfnew], ignore_index=True)
+        dfnew.to_json(save_path)
+
+win.close()
