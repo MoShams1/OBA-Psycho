@@ -6,8 +6,8 @@ June 2023
 The subject's task is to decide which of the two peripheral images appeared
 first.
 
-XX repetitions
-XX spatio-temporal conditions
+20 repetitions
+13 spatio-temporal conditions
 
 """
 
@@ -25,9 +25,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'test'
+subID = 'Ab01'
 rep_per_cnd = 20  # repetition per condition
-full_screen = False
+full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_cnds = 13
@@ -152,7 +152,7 @@ for itrial in range(n_trials):
         if iframe >= im2_frame:
             im2.draw()
             if iframe == im2_frame:
-                delta_t = timer.getTime() * 1000
+                delta_t = np.round(timer.getTime() * 1000)
 
         win.flip()
 
