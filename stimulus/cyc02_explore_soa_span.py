@@ -26,11 +26,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # /// GENERAL SETTINGS ///
 
 subID = 'test'
-rep_per_cnd = 10  # repetition per condition
+rep_per_cnd = 20  # repetition per condition
 full_screen = False
-running_device = 'mac'  # 'linux' or 'mac'
+running_device = 'linux'  # 'linux' or 'mac'
 
-n_cnds = 12
+n_cnds = 13
 n_trials = rep_per_cnd * n_cnds
 frame_rate = 60
 # ----------------------------------------------------------------------------
@@ -69,8 +69,9 @@ fixdot_color = 'black'
 fixdot_dur = 1 * practical_fr  # sec x Hz = frames
 
 # /// image
-im_size = 3
-im_ecc = 10
+im_size = 2
+im_ecc = 8
+im_opac = .2
 im_dur = int(.2 * practical_fr)  # in frames
 im1_frames = np.round(np.arange(1, 1.5, .1) * practical_fr)
 im1_frames = im1_frames.astype(int)
@@ -93,12 +94,13 @@ ind_cnd = np.arange(n_trials)
 np.random.shuffle(ind_cnd)
 
 # soa array
-soa_array = np.repeat(np.arange(0, n_cnds, 1), rep_per_cnd)[ind_cnd]
-
-# position array
-im1_pos_array = np.tile(np.repeat([-im_ecc, im_ecc], rep_per_cnd / 2), 12)
+soa_array = np.repeat(np.arange(-(n_cnds-1)/2, (n_cnds-1)/2+1, 1),
+                      rep_per_cnd)[ind_cnd]
 
 keypress_flag = False
+
+timer = core.Clock()
+delta_t = None
 # ----------------------------------------------------------------------------
 
 # /// START TRIAL ///
@@ -110,9 +112,9 @@ for itrial in range(n_trials):
     # /// set up trial variables
 
     im1_frame = np.random.choice(im1_frames)
-    im2_frame = im1_frame + soa_array[itrial]
+    im2_frame = im1_frame + int(np.absolute(soa_array[itrial]))
 
-    im1_pos = im1_pos_array[itrial]
+    im1_pos = im_ecc if soa_array[itrial] > 0 else -im_ecc
     im2_pos = -im1_pos
 
     # decide on annulus type
@@ -120,11 +122,13 @@ for itrial in range(n_trials):
     im1 = visual.ImageStim(win,
                            image=im_directory,
                            size=im_size,
+                           opacity=im_opac,
                            pos=(im1_pos, 0))
 
     im2 = visual.ImageStim(win,
                            image=im_directory,
                            size=im_size,
+                           opacity=im_opac,
                            pos=(im2_pos, 0))
 
     # decide on gap durations
@@ -143,8 +147,12 @@ for itrial in range(n_trials):
                        color=fixdot_color)
         if iframe >= im1_frame:
             im1.draw()
+            if iframe == im1_frame:
+                timer.reset()
         if iframe >= im2_frame:
             im2.draw()
+            if iframe == im2_frame:
+                delta_t = timer.getTime() * 1000
 
         win.flip()
 
@@ -162,20 +170,20 @@ for itrial in range(n_trials):
     # gap period
     for frame in range(int(.5 * practical_fr)):
         cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-                       color='darkred')
+                       color='darkgreen')
         win.flip()
 
     # -------------------------------
 
     # /// save data
-
     # create a dictionary
     trial_dict = {
         'trial_num': [itrial + 1],
         'frame_rate': [frame_rate],
         'im1_pos': [im1_pos],
         'response': [pressed_key],
-        'soa': [soa_array[itrial]]
+        'soa_cnd': [soa_array[itrial]],
+        'soa_ms': [delta_t]
     }
 
     # convert to data frame
