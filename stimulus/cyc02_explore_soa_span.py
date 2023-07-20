@@ -7,7 +7,7 @@ The subject's task is to decide which of the two peripheral images appeared
 first.
 
 20 repetitions
-13 spatio-temporal conditions
+9 SOAs
 
 """
 
