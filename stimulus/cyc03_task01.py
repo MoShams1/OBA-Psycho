@@ -40,7 +40,7 @@ frame_rate = 60
 # /// SET UP DIRECTORY PATHS ///
 
 save_folder = os.path.join('..', 'data', 'cyc03')
-image_folder = os.path.join('image', 'source_cyc03')
+image_folder = os.path.join('image')
 
 save_path = \
     os.path.join(save_folder,
@@ -131,8 +131,9 @@ for itrial in range(n_all_trials):
     # load tilted image
     tilt_cat = np.random.choice(['f', 'h'])
     tilt_mag = np.random.choice(range(100))
-    im_directory = os.path.join(image_folder,
-                                f'{tilt_cat}1_tilt{tilt_mag}.png')
+    tilt_dir = np.random.choice(['CW', 'CCW'])
+    im_directory = os.path.join(image_folder, 'cyc03_tilted',
+                                f'{tilt_cat}1_tilt{tilt_mag}_{tilt_dir}.png')
     tilt = visual.ImageStim(win,
                             image=im_directory,
                             size=im_size,
@@ -140,13 +141,13 @@ for itrial in range(n_all_trials):
                             pos=(0, 0))
 
     # load central images
-    im_directory = os.path.join(image_folder, 'f1.png')
+    im_directory = os.path.join(image_folder, 'cyc03_source', 'f1.png')
     f_cnt = visual.ImageStim(win,
                              image=im_directory,
                              size=im_size,
                              opacity=.5,
                              pos=(0, 0))
-    im_directory = os.path.join(image_folder, 'h1.png')
+    im_directory = os.path.join(image_folder, 'cyc03_source', 'h1.png')
     h_cnt = visual.ImageStim(win,
                              image=im_directory,
                              size=im_size,
@@ -169,13 +170,13 @@ for itrial in range(n_all_trials):
         im2_pos = -im1_pos
 
         # load peripheral images
-        im_directory = os.path.join(image_folder, 'f1.png')
+        im_directory = os.path.join(image_folder,  'cyc03_source', 'f1.png')
         im1_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
                                    opacity=im_opac,
                                    pos=(im1_pos, 0))
-        im_directory = os.path.join(image_folder, 'f1.png')
+        im_directory = os.path.join(image_folder,  'cyc03_source', 'f1.png')
         im2_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
