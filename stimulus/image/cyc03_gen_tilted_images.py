@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image
 
 # set the save image path
-save_path = os.path.join("image", "cyc03_tilted")
+save_path = os.path.join("", "cyc03_tilted")
 
 # face or house categories
 cats = ['f', 'h']
@@ -21,7 +21,7 @@ exms = list(range(2))[1:]
 for cat in cats:
     for exm in exms:
         # set the source image path
-        source_path = os.path.join("image", "cyc03_source",
+        source_path = os.path.join("", "cyc03_source",
                                    f"{cat}{exm}.png")
         # read the image
         im = Image.open(source_path)

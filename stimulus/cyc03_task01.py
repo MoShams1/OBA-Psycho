@@ -155,7 +155,7 @@ for itrial in range(n_all_trials):
 
     # decide on when the tilt/flash should occur
     event_time_s = np.random.choice(np.arange(0, 1.1, .1))
-    event_time = int(event_time_s * frame_rate)
+    event_frame = int(event_time_s * frame_rate)
 
     # decide on tilt magnitude
     if len(resp_eval_arr) >= 10:
@@ -199,11 +199,17 @@ for itrial in range(n_all_trials):
         cue = h_cnt
 
     im1_pos = np.nan
+    im2_pos = np.nan
+
+    im1_frame = np.nan
+    im2_frame = np.nan
+
+    tilt_frame = np.nan
 
     # if in soa task
     if soa_task[itrial]:
         # set image times
-        im1_frame = event_time
+        im1_frame = event_frame
         im2_frame = im1_frame + int(np.absolute(soa_array[itrial]))
         # set image positions
         im1_theta = np.random.choice(np.arange(-45, 45 + 1))
@@ -299,10 +305,10 @@ for itrial in range(n_all_trials):
             win.flip()
 
     if att_task[itrial]:
-        tilt_time = event_time
-        for iframe in range(tilt_time + att_response_grace_time):
+        tilt_frame = event_frame
+        for iframe in range(tilt_frame + att_response_grace_time):
             pressed_key = event.getKeys(keyList=['space', 'escape'])
-            if (iframe >= tilt_time) and (iframe <= tilt_time + tilt_dur):
+            if (iframe >= tilt_frame) and (iframe <= tilt_frame + tilt_dur):
                 if tilt_cat == 'f':
                     h_cnt.draw()
                     tilt.draw()
@@ -345,10 +351,18 @@ for itrial in range(n_all_trials):
     trial_dict = {
         'trial_num': [itrial + 1],
         'frame_rate': [frame_rate],
-        'im1_pos': [im1_pos],
-        'response': [pressed_key],
+        'cued_image': [cue_array[itrial]],
         'soa_cnd': [soa_array[itrial]],
-        'soa_ms': [delta_t]
+        'im1_pos': [im1_pos],
+        'im2_pos': [im2_pos],
+        'im1_frame': [im1_frame],
+        'im2_frame': [im2_frame],
+        'im_dur': [im_dur],
+        'tilt_image': [tilt_cat],
+        'tilt_frame': [tilt_frame],
+        'tilt_mag_deg': [tilt_mag/10],
+        'response': [pressed_key],
+        'corr_resp_flag': [correct_resp]
     }
 
     # convert to data frame
