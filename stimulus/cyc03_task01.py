@@ -6,7 +6,7 @@ June 2023
 The subject's task is to decide which of the two peripheral images appeared
 first.
 
-20 repetitions
+10 repetitions
 9 SOAs conditions
 
 """
@@ -51,8 +51,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'AD01'
-rep_per_cnd = 20  # repetition per condition
+subID = 'test'
+rep_per_cnd = 12  # repetition per condition
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
@@ -142,11 +142,21 @@ delta_t = None
 resp_eval_arr = []
 run_perf = 80  # set expected accuracy as initial value
 tilt_mag = 30  # set initial tilt
+
+# set when to pause the task for rest
+n_blocks = 4
+pause_trials = np.linspace(0, n_all_trials, n_blocks+1)
+pause_trials = pause_trials[:-1]
+pause_counter = 0
 # ----------------------------------------------------------------------------
 
 # /// START TRIAL ///
 
 for itrial in range(n_all_trials):
+
+    if itrial == int(pause_trials[pause_counter]):
+        pause_counter += 1
+        sfc.run_pause_screen(win, pause_counter)
 
     # -------------------------------
 
@@ -172,6 +182,10 @@ for itrial in range(n_all_trials):
     tilt_dir = np.random.choice(['CW', 'CCW'])
     im_directory = os.path.join(image_folder, 'cyc03_tilted',
                                 f'{tilt_cat}1_tilt{tilt_mag}_{tilt_dir}.png')
+    if tilt_cat == 'h':
+        opacity = .7
+    else:
+        opacity = .5
     tilt = visual.ImageStim(win,
                             image=im_directory,
                             size=im_size,
@@ -189,7 +203,7 @@ for itrial in range(n_all_trials):
     h_cnt = visual.ImageStim(win,
                              image=im_directory,
                              size=im_size,
-                             opacity=.5,
+                             opacity=.7,
                              pos=(0, 0))
 
     # load cue/target image
@@ -300,7 +314,7 @@ for itrial in range(n_all_trials):
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
-            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+            cvis.addfixdot(win=win, size=fixdot_size*1.5, pos=fixdot_pos,
                            color='darkgreen')
             win.flip()
 
