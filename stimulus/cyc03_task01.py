@@ -6,7 +6,7 @@ June 2023
 The subject's task is to decide which of the two peripheral images appeared
 first.
 
-10 repetitions
+12 repetitions
 9 SOAs conditions
 
 """
@@ -51,7 +51,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'test'
+subID = 'AB02'
 rep_per_cnd = 12  # repetition per condition
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
