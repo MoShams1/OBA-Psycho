@@ -19,6 +19,7 @@ from psychopy import visual, event, core
 from lib import config_visual as cvis, timestamp, keymouse
 from lib import stimulus_flow_control as sfc
 
+
 # ----------------------------------------------------------------------------
 
 
@@ -145,7 +146,7 @@ tilt_mag = 30  # set initial tilt
 
 # set when to pause the task for rest
 n_blocks = 4
-pause_trials = np.linspace(0, n_all_trials, n_blocks+1)
+pause_trials = np.linspace(0, n_all_trials, n_blocks + 1)
 pause_trials = pause_trials[:-1]
 pause_counter = 0
 # ----------------------------------------------------------------------------
@@ -155,10 +156,11 @@ pause_counter = 0
 for itrial in range(n_all_trials):
 
     if itrial == int(pause_trials[pause_counter]):
-        pause_counter += 1
+        if pause_counter < 3:
+            pause_counter += 1
         sfc.run_pause_screen(win, pause_counter)
 
-    # -------------------------------
+        # -------------------------------
 
     # decide on gap period durations
     firstgap_dur = np.random.choice(gap_dur_arr)
@@ -314,7 +316,7 @@ for itrial in range(n_all_trials):
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
-            cvis.addfixdot(win=win, size=fixdot_size*1.5, pos=fixdot_pos,
+            cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
                            color='darkgreen')
             win.flip()
 
@@ -352,10 +354,10 @@ for itrial in range(n_all_trials):
         resp_eval_arr.append(correct_resp)
         run_perf = sum(resp_eval_arr[-10:]) / 10 * 100
 
-        print('=================================')
-        print(f'tilt magnitude: {tilt_mag}')
-        print(f'current eval: {correct_resp}')
-        print(f'running performance: {run_perf}')
+        # print('=================================')
+        # print(f'tilt magnitude: {tilt_mag}')
+        # print(f'current eval: {correct_resp}')
+        # print(f'running performance: {run_perf}')
 
     # -------------------------------
 
@@ -374,7 +376,7 @@ for itrial in range(n_all_trials):
         'im_dur': [im_dur],
         'tilt_image': [tilt_cat],
         'tilt_frame': [tilt_frame],
-        'tilt_mag_deg': [tilt_mag/10],
+        'tilt_mag_deg': [tilt_mag / 10],
         'response': [pressed_key],
         'corr_resp_flag': [correct_resp]
     }
