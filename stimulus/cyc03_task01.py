@@ -54,13 +54,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 subID = 'MS01'
 rep_per_cnd = 12  # repetition per condition
-full_screen = True
+full_screen = False
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa = 9
-n_soa_trials = rep_per_cnd * n_soa  # 2/3 of all trials
-n_all_trials = int(n_soa_trials * 1.5)
-n_att_trials = n_all_trials - n_soa_trials  # 1/3 of all trials
+n_soa_trials = rep_per_cnd * n_soa  # about 2/3 of all trials
+n_all_trials = int(n_soa_trials * 1.48148)
+n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ im_size = 2
 im_ecc = 6
 # im_opac = .2
 im_opac = .5
-im_dur = int(.25 * frame_rate)
+im_dur = int(.1 * frame_rate)
 im1_frames = np.round(np.arange(1, 1.5, .1) * frame_rate)
 im1_frames = im1_frames.astype(int)
 tilt_dur = int(.25 * frame_rate)
@@ -131,9 +131,11 @@ att_task = np.isnan(soa_array)
 soa_task = ~att_task
 
 # cue array (1: face, 2: house)
-cue_array = np.repeat(['f', 'h'], int(n_soa_trials / 2))
-tail = np.repeat(['f', 'h'], int(n_att_trials / 2))
-cue_array = np.concatenate((cue_array, tail))[ind_shuffle]
+image_block_choice = np.random.choice([0, 1])
+if image_block_choice:
+    cue_array = np.repeat(['f', 'h', 'f', 'h'], int(n_all_trials / 4))
+else:
+    cue_array = np.repeat(['h', 'f', 'h', 'f'], int(n_all_trials / 4))
 
 keypress_flag = False
 
@@ -156,7 +158,7 @@ pause_counter = 0
 for itrial in range(n_all_trials):
 
     if itrial == int(pause_trials[pause_counter]):
-        if pause_counter < 3:
+        if pause_counter < n_blocks:
             pause_counter += 1
         sfc.run_pause_screen(win, pause_counter)
 
@@ -173,8 +175,8 @@ for itrial in range(n_all_trials):
     # take care of saturated scenarios
     if tilt_mag > 99:
         tilt_mag = 99
-    elif tilt_mag < 1:
-        tilt_mag = 1
+    elif tilt_mag < 5:
+        tilt_mag = 5
 
     # load tilted image
     tilt_cat = np.random.choice(['f', 'h'])
@@ -182,13 +184,14 @@ for itrial in range(n_all_trials):
     im_directory = os.path.join(image_folder, 'cyc03_tilted',
                                 f'{tilt_cat}1_tilt{tilt_mag}_{tilt_dir}.png')
     if tilt_cat == 'h':
-        opacity = .7
+        tilt_opacity = .7
     else:
-        opacity = .5
+        tilt_opacity = .5
+
     tilt = visual.ImageStim(win,
                             image=im_directory,
                             size=im_size,
-                            opacity=.5,
+                            opacity=tilt_opacity,
                             pos=(0, 0))
 
     # load central images
@@ -259,7 +262,7 @@ for itrial in range(n_all_trials):
         win.flip()
 
     # cue period
-    for frame in range(int(1.5 * frame_rate)):
+    for frame in range(int(1 * frame_rate)):
         cvis.addprobe(win, radius=1.5, color=[-.5, -.5, -.5], pos=(0, 0))
         cue.draw()
         win.flip()
@@ -300,16 +303,20 @@ for itrial in range(n_all_trials):
             win.flip()
 
         # response period
+        timer.reset()
         win.flip()
         # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
         #                color=fixdot_color)
-        win.flip()
+        # win.flip()
         keymouse.escape_session()
         pressed_key = event.waitKeys(keyList=['left', 'right', 'escape'])
 
         # check input keys
         if 'escape' in pressed_key:
             core.quit()
+        if ('left' in pressed_key) or ('right' in pressed_key):
+            soa_rt = np.round(timer.getTime() * 1000)
+            print(f'*** SOA RT: {soa_rt} ms ***')
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
@@ -363,9 +370,12 @@ for itrial in range(n_all_trials):
         run_perf = sum(resp_eval_arr[-10:]) / 10 * 100
 
         print('=================================')
+        print(f'cued image: {cue_array[itrial]}')
+        print(f'tilted image: {tilt_cat}')
         print(f'tilt magnitude: {tilt_mag}')
         print(f'current eval: {correct_resp}')
         print(f'running performance: {run_perf}')
+        print(f'key pressed?: {tilt_seen}')
 
     # -------------------------------
 
@@ -381,11 +391,12 @@ for itrial in range(n_all_trials):
         'im2_pos': [im2_pos],
         'im1_frame': [im1_frame],
         'im2_frame': [im2_frame],
-        'im_dur': [im_dur],
+        'flash_dur': [im_dur],
         'tilt_image': [tilt_cat],
         'tilt_frame': [tilt_frame],
+        'tilt_duration': [tilt_dur],
         'tilt_mag_deg': [tilt_mag / 10],
-        'response': [pressed_key],
+        'tilt_seen': [tilt_seen],
         'corr_resp_flag': [correct_resp]
     }
 
