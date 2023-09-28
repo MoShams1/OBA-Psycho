@@ -54,12 +54,12 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 subID = 'MS01'
 rep_per_cnd = 12  # repetition per condition
-full_screen = False
+full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa = 9
 n_soa_trials = rep_per_cnd * n_soa  # about 2/3 of all trials
-n_all_trials = int(n_soa_trials * 1.48148)
+n_all_trials = round(n_soa_trials * 1.48148)
 n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
@@ -117,14 +117,25 @@ cvis.test_framerate(win=win, nominal_fr=frame_rate)
 
 # /// CONDITIONING ///
 
-ind_shuffle = np.arange(n_all_trials)
-np.random.shuffle(ind_shuffle)
+ind_shuffle = np.arange(int(round(n_all_trials/4)))
 
 # soa array
 soa_array_base = np.linspace(-20, 20, n_soa)
-soa_array = np.repeat(soa_array_base, rep_per_cnd)
-tail = np.full(n_att_trials, np.nan)
-soa_array = np.concatenate((soa_array, tail))[ind_shuffle]
+soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd/4))
+tail = np.full(int(n_att_trials/4), np.nan)
+
+np.random.shuffle(ind_shuffle)
+soa_array_quad1 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+np.random.shuffle(ind_shuffle)
+soa_array_quad2 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+np.random.shuffle(ind_shuffle)
+soa_array_quad3 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+np.random.shuffle(ind_shuffle)
+soa_array_quad4 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+soa_array = np.concatenate((soa_array_quad1,
+                            soa_array_quad2,
+                            soa_array_quad3,
+                            soa_array_quad4))
 
 # indicate which task should be shown at each trial
 att_task = np.isnan(soa_array)
@@ -158,9 +169,9 @@ pause_counter = 0
 for itrial in range(n_all_trials):
 
     if itrial == int(pause_trials[pause_counter]):
-        if pause_counter < n_blocks:
+        sfc.run_pause_screen(win, pause_counter + 1)
+        if pause_counter < n_blocks-1:
             pause_counter += 1
-        sfc.run_pause_screen(win, pause_counter)
 
         # -------------------------------
 
@@ -175,8 +186,8 @@ for itrial in range(n_all_trials):
     # take care of saturated scenarios
     if tilt_mag > 99:
         tilt_mag = 99
-    elif tilt_mag < 5:
-        tilt_mag = 5
+    elif tilt_mag < 7:
+        tilt_mag = 7
 
     # load tilted image
     tilt_cat = np.random.choice(['f', 'h'])
