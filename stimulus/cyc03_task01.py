@@ -267,6 +267,7 @@ for itrial in range(n_all_trials):
     tilt_seen = False
     pressed_key = []
     correct_resp = np.nan
+    soa_rt = np.nan
 
     # gap period
     for frame in range(int(2 * frame_rate)):
@@ -326,7 +327,7 @@ for itrial in range(n_all_trials):
         if 'escape' in pressed_key:
             core.quit()
         if ('left' in pressed_key) or ('right' in pressed_key):
-            soa_rt = np.round(timer.getTime() * 1000)
+            soa_rt = round(timer.getTime() * 1000)
             print(f'*** SOA RT: {soa_rt} ms ***')
 
         # feedback period
@@ -403,6 +404,7 @@ for itrial in range(n_all_trials):
         'im1_frame': [im1_frame],
         'im2_frame': [im2_frame],
         'flash_dur': [im_dur],
+        'soa_rt': [soa_rt],
         'tilt_image': [tilt_cat],
         'tilt_frame': [tilt_frame],
         'tilt_duration': [tilt_dur],
