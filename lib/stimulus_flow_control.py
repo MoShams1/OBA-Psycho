@@ -10,14 +10,14 @@ def cal_next_tilt(goal_perf, run_perf):
 
 
 def run_pause_screen(win, b):
-    msg = f"Ready to continue with block {b} / {4}?"
+    msg = f"Ready for block {b}/{4}?"
     message = visual.TextStim(win,
                               text=msg, color='black', height=.5,
                               alignText='center')
     message.pos = (0, 1)
     message.draw()
 
-    commands = '[Escape]: Quit\t[Enter]: Go'
+    commands = '[Escape]: Quit\t\t\t[Enter]: Go'
     cmnd_text = visual.TextStim(win,
                                 text=commands, color='black', height=.5,
                                 alignText='center')

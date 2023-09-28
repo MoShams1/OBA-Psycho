@@ -52,7 +52,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'AL06'
+subID = 'MS01'
 rep_per_cnd = 12  # repetition per condition
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -162,9 +162,6 @@ for itrial in range(n_all_trials):
 
         # -------------------------------
 
-    # decide on gap period durations
-    firstgap_dur = np.random.choice(gap_dur_arr)
-
     # decide on when the tilt/flash should occur
     event_time_s = np.random.choice(np.arange(0, 1.1, .1))
     event_frame = int(event_time_s * frame_rate)
@@ -258,12 +255,12 @@ for itrial in range(n_all_trials):
     correct_resp = np.nan
 
     # gap period
-    for frame in range(int(1 * frame_rate)):
+    for frame in range(int(2 * frame_rate)):
         win.flip()
 
     # cue period
-    for frame in range(int(1 * frame_rate)):
-        cvis.addprobe(win, radius=1.5, color='dimgray', pos=(0, 0))
+    for frame in range(int(1.5 * frame_rate)):
+        cvis.addprobe(win, radius=1.5, color=[-.5, -.5, -.5], pos=(0, 0))
         cue.draw()
         win.flip()
 
@@ -277,8 +274,8 @@ for itrial in range(n_all_trials):
         h_cnt.draw()
         f_cnt.draw()
         # add fixation mark
-        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-                       color=fixdot_color)
+        # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+        #                color=fixdot_color)
         win.flip()
 
     # soa task
@@ -288,8 +285,8 @@ for itrial in range(n_all_trials):
             h_cnt.draw()
             f_cnt.draw()
             # add fixation mark
-            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-                           color=fixdot_color)
+            # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+            #                color=fixdot_color)
             # flash peripheral images
             if (iframe >= im1_frame) and (iframe <= im1_frame + im_dur):
                 im1_per.draw()
@@ -304,8 +301,8 @@ for itrial in range(n_all_trials):
 
         # response period
         win.flip()
-        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-                       color=fixdot_color)
+        # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+        #                color=fixdot_color)
         win.flip()
         keymouse.escape_session()
         pressed_key = event.waitKeys(keyList=['left', 'right', 'escape'])
@@ -334,8 +331,8 @@ for itrial in range(n_all_trials):
             else:
                 h_cnt.draw()
                 f_cnt.draw()
-            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-                           color=fixdot_color)
+            # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+            #                color=fixdot_color)
             win.flip()
 
             # check input keys
@@ -347,17 +344,28 @@ for itrial in range(n_all_trials):
         # evaluate response
         if (cue_array[itrial] == tilt_cat) and tilt_seen:
             correct_resp = True
+            feedback_color = 'darkgreen'
         elif (cue_array[itrial] != tilt_cat) and not tilt_seen:
             correct_resp = True
+            feedback_color = 'darkgreen'
         else:
             correct_resp = False
+            feedback_color = 'darkred'
+
+        # feedback period
+        for frame in range(int(.5 * frame_rate)):
+            cvis.addfixdot(win=win, size=fixdot_size * 1.5,
+                           pos=fixdot_pos,
+                           color=feedback_color)
+            win.flip()
+
         resp_eval_arr.append(correct_resp)
         run_perf = sum(resp_eval_arr[-10:]) / 10 * 100
 
-        # print('=================================')
-        # print(f'tilt magnitude: {tilt_mag}')
-        # print(f'current eval: {correct_resp}')
-        # print(f'running performance: {run_perf}')
+        print('=================================')
+        print(f'tilt magnitude: {tilt_mag}')
+        print(f'current eval: {correct_resp}')
+        print(f'running performance: {run_perf}')
 
     # -------------------------------
 
