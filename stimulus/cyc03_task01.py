@@ -54,12 +54,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 subID = 'SC01'
 rep_per_cnd = 12  # repetition per condition
-full_screen = False
+full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa = 9
 n_soa_trials = rep_per_cnd * n_soa  # about 2/3 of all trials
 n_all_trials = round(n_soa_trials * 1.48148)
+# n_all_trials = round(n_soa_trials * 1000)
 n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
