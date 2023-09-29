@@ -52,9 +52,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01'
+subID = 'SC01'
 rep_per_cnd = 12  # repetition per condition
-full_screen = True
+full_screen = False
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa = 9
@@ -268,6 +268,7 @@ for itrial in range(n_all_trials):
     pressed_key = []
     correct_resp = np.nan
     soa_rt = np.nan
+    soa_resp = np.nan
 
     # gap period
     for frame in range(int(2 * frame_rate)):
@@ -329,6 +330,13 @@ for itrial in range(n_all_trials):
         if ('left' in pressed_key) or ('right' in pressed_key):
             soa_rt = round(timer.getTime() * 1000)
             print(f'*** SOA RT: {soa_rt} ms ***')
+            if 'left' in pressed_key:
+                soa_resp = 'l'
+            elif 'right' in pressed_key:
+                soa_resp = 'r'
+            else:
+                soa_resp = np.nan
+            print(f'*** SOA response: {soa_resp} ***')
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
@@ -405,6 +413,7 @@ for itrial in range(n_all_trials):
         'im2_frame': [im2_frame],
         'flash_dur': [im_dur],
         'soa_rt': [soa_rt],
+        'soa_response': [soa_resp],
         'tilt_image': [tilt_cat],
         'tilt_frame': [tilt_frame],
         'tilt_duration': [tilt_dur],
