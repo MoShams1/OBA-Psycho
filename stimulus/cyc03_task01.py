@@ -122,7 +122,7 @@ cvis.test_framerate(win=win, nominal_fr=frame_rate)
 ind_shuffle = np.arange(int(round(n_all_trials/4)))
 
 # soa array
-soa_array_base = np.linspace(-6, 6, n_soa)
+soa_array_base = np.linspace(-8, 8, n_soa)
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd/4))
 tail = np.full(int(n_att_trials/4), np.nan)
 
@@ -233,18 +233,19 @@ for itrial in range(n_all_trials):
     im1_frame = np.nan
     im2_frame = np.nan
 
+    im1_theta = np.nan
+    im2_theta = np.nan
+
     tilt_frame = np.nan
 
     # if in soa task
     if soa_task[itrial]:
         # set image times
         im1_frame = event_frame
-        im2_frame = im1_frame + int(np.absolute(soa_array[itrial]))
+        im2_frame = im1_frame + int(soa_array[itrial])
         # set image positions
-        im1_theta = np.random.choice(np.arange(-45, 45 + 1))
-        if soa_array[itrial] < 0:
-            im1_theta = im1_theta - 180
-        im2_theta = im1_theta + 180
+        im1_theta = np.random.choice(np.arange(135, 135+90 + 1))  # im1 left
+        im2_theta = im1_theta + 180  # im2 right
         im1_pos = pol2cart(im_ecc, im1_theta)
         im2_pos = pol2cart(im_ecc, im2_theta)
 
@@ -298,7 +299,10 @@ for itrial in range(n_all_trials):
 
     # soa task
     if soa_task[itrial]:
-        for iframe in range(im2_frame + im_dur):
+        print('=================================')
+        print(f'*** im1 frame: {im1_frame} ***')
+        print(f'*** im2 frame: {im2_frame} ***')
+        for iframe in range(max(im1_frame, im2_frame) + im_dur):
             # add central images
             h_cnt.draw()
             f_cnt.draw()
@@ -331,7 +335,6 @@ for itrial in range(n_all_trials):
             core.quit()
         if ('left' in pressed_key) or ('right' in pressed_key):
             soa_rt = round(timer.getTime() * 1000)
-            print(f'*** SOA RT: {soa_rt} ms ***')
             if 'left' in pressed_key:
                 soa_resp = 'l'
             elif 'right' in pressed_key:
@@ -339,11 +342,22 @@ for itrial in range(n_all_trials):
             else:
                 soa_resp = np.nan
             print(f'*** SOA response: {soa_resp} ***')
+            print(f'*** SOA RT: {soa_rt} ms ***')
+            if (im1_frame > im2_frame) & (soa_resp == 'r'):
+                print('*** response eval: correct')
+            if (im1_frame < im2_frame) & (soa_resp == 'l'):
+                print('*** response eval: correct')
+            if (im1_frame > im2_frame) & (soa_resp == 'l'):
+                print('*** response eval: wrong')
+            if (im1_frame < im2_frame) & (soa_resp == 'r'):
+                print('*** response eval: wrong')
+            if im1_frame == im2_frame:
+                print('*** response eval: ---')
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
             cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
-                           color='darkgreen')
+                           color='black')
             win.flip()
 
     if att_task[itrial]:
