@@ -53,12 +53,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # /// GENERAL SETTINGS ///
 
 subID = 'MS01'
-rep_per_cnd = 12  # repetition per condition
+rep_per_cnd = 12  # repetition per condition (factor of 4)
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa = 9
-n_soa_trials = rep_per_cnd * n_soa  # about 2/3 of all trials
+abs_soa_dt = 9  # frames
+n_soa_trials = rep_per_cnd * n_soa
 # n_all_trials = round(n_soa_trials * 1)  # training SOA task
 # n_all_trials = round(n_soa_trials * 1000)  # training Attention task
 n_all_trials = round(n_soa_trials * 1.48148)  # dual task
@@ -122,7 +123,7 @@ cvis.test_framerate(win=win, nominal_fr=frame_rate)
 ind_shuffle = np.arange(int(round(n_all_trials/4)))
 
 # soa array
-soa_array_base = np.linspace(-8, 8, n_soa)
+soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa)
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd/4))
 tail = np.full(int(n_att_trials/4), np.nan)
 
