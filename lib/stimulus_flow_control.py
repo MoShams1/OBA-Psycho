@@ -9,8 +9,8 @@ def cal_next_tilt(goal_perf, run_perf):
     return step_change
 
 
-def run_pause_screen(win, b):
-    msg = f"Ready for block {b}/{4}?"
+def run_pause_screen(win, b, nblocks):
+    msg = f"Ready for block {b}/{nblocks}?"
     message = visual.TextStim(win,
                               text=msg, color='black', height=.5,
                               alignText='center')

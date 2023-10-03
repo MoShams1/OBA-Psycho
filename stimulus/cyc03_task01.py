@@ -56,14 +56,15 @@ subID = 'MS01_test'
 soa_corr_factor = 0
 n_soa = 11
 abs_soa_dt = 10  # frames
-rep_per_cnd = 4  # repetition per condition (factor of 4)
-full_screen = True
+rep_per_cnd = 16  # repetition per condition (factor of 4)
+n_blocks = 8
+full_screen = False
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
-n_all_trials = round(n_soa_trials * 1)  # training SOA task
+# n_all_trials = round(n_soa_trials * 1)  # training SOA task
 # n_all_trials = round(n_soa_trials * 1000)  # training Attention task
-# n_all_trials = round(n_soa_trials * 1.3636)  # dual task
+n_all_trials = round(n_soa_trials * 1.363636)  # dual task
 n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
@@ -123,23 +124,37 @@ cvis.test_framerate(win=win, nominal_fr=frame_rate)
 
 ind_shuffle = np.arange(int(round(n_all_trials/4)))
 
+tail = np.full(int(n_att_trials/4), np.nan)
+
 # soa array
 soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd/4))
-tail = np.full(int(n_att_trials/4), np.nan)
+
+# congurency array
+cong_array_base = [-1, 1]
+cong_array_quad = np.tile(np.repeat(cong_array_base, int(rep_per_cnd/4/2)),
+                          n_soa)
 
 np.random.shuffle(ind_shuffle)
 soa_array_quad1 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+cong_array_quad1 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad2 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+cong_array_quad2 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad3 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+cong_array_quad3 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad4 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
+cong_array_quad4 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
 soa_array = np.concatenate((soa_array_quad1,
                             soa_array_quad2,
                             soa_array_quad3,
                             soa_array_quad4))
+cong_array = np.concatenate((cong_array_quad1,
+                            cong_array_quad2,
+                            cong_array_quad3,
+                            cong_array_quad4))
 
 # indicate which task should be shown at each trial
 att_task = np.isnan(soa_array)
@@ -148,9 +163,11 @@ soa_task = ~att_task
 # cue array (1: face, 2: house)
 image_block_choice = np.random.choice([0, 1])
 if image_block_choice:
-    cue_array = np.repeat(['f', 'h', 'f', 'h'], int(n_all_trials / 4))
+    cue_array = np.repeat(np.tile(['f', 'h'], n_blocks),
+                          int(n_all_trials / n_blocks))
 else:
-    cue_array = np.repeat(['h', 'f', 'h', 'f'], int(n_all_trials / 4))
+    cue_array = np.repeat(np.tile(['h', 'f'], n_blocks),
+                          int(n_all_trials / n_blocks))
 
 keypress_flag = False
 
@@ -162,7 +179,6 @@ run_perf = 80  # set expected accuracy as initial value
 tilt_mag = 30  # set initial tilt
 
 # set when to pause the task for rest
-n_blocks = 4
 pause_trials = np.linspace(0, n_all_trials, n_blocks + 1)
 pause_trials = pause_trials[:-1]
 pause_counter = 0
@@ -173,7 +189,7 @@ pause_counter = 0
 for itrial in range(n_all_trials):
 
     if itrial == int(pause_trials[pause_counter]):
-        sfc.run_pause_screen(win, pause_counter + 1)
+        sfc.run_pause_screen(win, pause_counter + 1, n_blocks)
         if pause_counter < n_blocks-1:
             pause_counter += 1
 
@@ -252,13 +268,18 @@ for itrial in range(n_all_trials):
         im2_pos = pol2cart(im_ecc, im2_theta)
 
         # load peripheral images
-        im_directory = os.path.join(image_folder, 'cyc03_source', 'f1.png')
+        if cong_array[itrial] == 1:
+            per_im = cue_array[itrial]
+        else:
+            per_im = np.setdiff1d(['f', 'h'], cue_array[itrial])[0]
+
+        im_directory = os.path.join(image_folder, 'cyc03_source',
+                                    f'{per_im}1.png')
         im1_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
                                    opacity=im_opac,
                                    pos=im1_pos)
-        im_directory = os.path.join(image_folder, 'cyc03_source', 'f1.png')
         im2_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
@@ -343,6 +364,7 @@ for itrial in range(n_all_trials):
                 soa_resp = 'r'
             else:
                 soa_resp = np.nan
+            print(f'*** Congruency: {cong_array[itrial]}')
             print(f'*** SOA response: {soa_resp} ***')
             print(f'*** SOA RT: {soa_rt} ms ***')
             if (im1_frame > im2_frame) & (soa_resp == 'r'):
@@ -414,8 +436,7 @@ for itrial in range(n_all_trials):
         print(f'current eval: {correct_resp}')
         print(f'running performance: {run_perf}')
         print(f'key pressed?: {tilt_seen}')
-
-    # -------------------------------
+        # -------------------------------
 
     # /// SAVE DATA
 
@@ -424,6 +445,7 @@ for itrial in range(n_all_trials):
         'trial_num': [itrial + 1],
         'frame_rate': [frame_rate],
         'cued_image': [cue_array[itrial]],
+        'congurency': [cong_array[itrial]],
         'soa_cnd': [soa_array[itrial]],
         'im1_pos': [im1_pos],
         'im2_pos': [im2_pos],
