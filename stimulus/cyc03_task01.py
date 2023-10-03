@@ -52,13 +52,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01_test'
+subID = 'MS01'
 soa_corr_factor = 0
 n_soa = 11
 abs_soa_dt = 10  # frames
 rep_per_cnd = 16  # repetition per condition (factor of 4)
 n_blocks = 8
-full_screen = False
+full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
