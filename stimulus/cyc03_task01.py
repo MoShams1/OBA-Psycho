@@ -54,8 +54,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 subID = 'MS01_test'
 soa_corr_factor = 0
-n_soa = 7
-abs_soa_dt = 9  # frames
+n_soa = 11
+abs_soa_dt = 10  # frames
 rep_per_cnd = 4  # repetition per condition (factor of 4)
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -63,7 +63,7 @@ running_device = 'linux'  # 'linux' or 'mac'
 n_soa_trials = rep_per_cnd * n_soa
 n_all_trials = round(n_soa_trials * 1)  # training SOA task
 # n_all_trials = round(n_soa_trials * 1000)  # training Attention task
-# n_all_trials = round(n_soa_trials * 1.33333)  # dual task
+# n_all_trials = round(n_soa_trials * 1.3636)  # dual task
 n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
