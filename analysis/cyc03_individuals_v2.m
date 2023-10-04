@@ -7,7 +7,9 @@ close all
 % jsonFilePath = '../data/cyc03/MS01_soa_20231003_193347.json';
 % jsonFilePath = '../data/cyc03/MS01_soa_20231004_114030.json';
 
-jsonFilePath = '../data/cyc03/MS01_soa_20231004_155637.json';
+% jsonFilePath = '../data/cyc03/MS01_soa_20231004_155637.json';
+
+jsonFilePath = '../data/cyc03/MS01_rep24_log_accuracy_soa_20231004_164051.json';
 
 
 % Open the JSON file and read its content
@@ -49,7 +51,7 @@ x_ms = x * 1000 / 60;
 
 left_resp = strcmp(resp, 'l');
 
-test_obj = 'h';
+test_obj = 'f';
 
 if test_obj == 'h'
     cue_att = 'h';
