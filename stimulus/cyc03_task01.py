@@ -440,7 +440,7 @@ for itrial in range(n_all_trials):
         'trial_num': [itrial + 1],
         'frame_rate': [frame_rate],
         'cued_image': [cue_array[itrial]],
-        'congurency': [cong_array[itrial]],
+        'congruency': [cong_array[itrial]],
         'soa_cnd': [soa_array[itrial]],
         'im1_pos': [im1_pos],
         'im2_pos': [im2_pos],
