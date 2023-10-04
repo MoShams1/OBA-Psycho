@@ -6,7 +6,7 @@ close all
 % Specify the path to the JSON file
 % jsonFilePath = '../data/cyc03/MS01_soa_20231003_193347.json';
 % jsonFilePath = '../data/cyc03/MS01_soa_20231004_114030.json';
-jsonFilePath = '../data/cyc03/MS01_soa_20231004_150511.json';
+jsonFilePath = '../data/cyc03/MS01_soa_20231004_155637.json';
 
 
 % Open the JSON file and read its content
@@ -108,7 +108,7 @@ xlabel 'Left image lead (ms)'
 ylabel 'Reaction time (ms)'
 
 rt_improvement = mean(-(rt_att-rt_unatt) ./ (rt_att+rt_unatt));
-text(-50, 300, ['RT improvement: ', num2str(round(rt_improvement,1)),'%'])
+text(-50, 100, ['RT improvement: ', num2str(round(rt_improvement,1)),'%'])
 
 %% Models
 x_model = -250:250;
