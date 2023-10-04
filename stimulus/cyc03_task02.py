@@ -1,6 +1,6 @@
 """
 Mo Shams <MShamsCBR@gmail.com>
-June 2023
+Oct 2023
 ---
 
 The subject's task is to decide which of the two peripheral images appeared
@@ -53,23 +53,20 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01_rep24_log_accuracy'
+subID = 'MS01_task2'
 soa_corr_factor = 0
-# n_soa = 7
-n_soa = 8
-# abs_soa_dt = 9  # frames
-abs_soa_dt = 8  # frames
-# rep_per_cnd = 48  # repetition per condition (factor of 4)
-rep_per_cnd = 24  # repetition per condition (factor of 4)
-n_blocks = 8
+n_cnds = 4
+abs_soa_dt = 1  # frames
+rep_per_cnd = 48  # repetition per condition (factor of 4)
+n_blocks = 4
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
-n_soa_trials = rep_per_cnd * n_soa
-n_all_trials = round(n_soa_trials * 1)  # training SOA task
-# n_all_trials = round(n_soa_trials * 1000)  # training Attention task
-# n_all_trials = n_soa_trials + 88  # dual task (75% SOA; 25% att)
-n_att_trials = n_all_trials - n_soa_trials
+n_cnds_trials = rep_per_cnd * n_cnds
+n_all_trials = round(n_cnds_trials * 1)  # training SOA task
+# n_all_trials = round(n_cnds_trials * 1000)  # training Attention task
+# n_all_trials = n_cnds_trials + 88  # dual task (75% SOA; 25% att)
+n_att_trials = n_all_trials - n_cnds_trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
 
@@ -133,36 +130,34 @@ ind_shuffle = np.arange(int(round(n_all_trials / n_cue_blocks)))
 tail = np.full(int(n_att_trials / n_cue_blocks), np.nan)
 
 # soa array
-# soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
-soa_array_base = np.array([-8, -4, -2, -1, 1, 2, 4, 8]) + soa_corr_factor
+soa_array_base = np.array([-abs_soa_dt, -abs_soa_dt,
+                           abs_soa_dt, abs_soa_dt]) + soa_corr_factor
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd / n_cue_blocks))
 
-# congurency array
-cong_array_base = [-1, 1]
-cong_array_quad = np.tile(np.repeat(cong_array_base,
-                                    int(rep_per_cnd / n_cue_blocks / 2)),
-                          n_soa)
+# im1 array
+im1_array_base = np.array(['h', 'f', 'h', 'f'])
+im1_array_quad = np.repeat(im1_array_base, int(rep_per_cnd / n_cue_blocks))
 
 np.random.shuffle(ind_shuffle)
 soa_array_quad1 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
-cong_array_quad1 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
+im1_array_quad1 = np.concatenate((im1_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad2 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
-cong_array_quad2 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
+im1_array_quad2 = np.concatenate((im1_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad3 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
-cong_array_quad3 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
+im1_array_quad3 = np.concatenate((im1_array_quad, tail))[ind_shuffle]
 np.random.shuffle(ind_shuffle)
 soa_array_quad4 = np.concatenate((soa_array_quad, tail))[ind_shuffle]
-cong_array_quad4 = np.concatenate((cong_array_quad, tail))[ind_shuffle]
+im1_array_quad4 = np.concatenate((im1_array_quad, tail))[ind_shuffle]
 soa_array = np.concatenate((soa_array_quad1,
                             soa_array_quad2,
                             soa_array_quad3,
                             soa_array_quad4))
-cong_array = np.concatenate((cong_array_quad1,
-                             cong_array_quad2,
-                             cong_array_quad3,
-                             cong_array_quad4))
+im1_array = np.concatenate((im1_array_quad1,
+                            im1_array_quad2,
+                            im1_array_quad3,
+                            im1_array_quad4))
 
 # indicate which task should be shown at each trial
 att_task = np.isnan(soa_array)
@@ -252,6 +247,8 @@ for itrial in range(n_all_trials):
     else:
         cue = h_cnt
 
+    im1 = np.nan
+
     im1_pos = np.nan
     im2_pos = np.nan
 
@@ -275,19 +272,19 @@ for itrial in range(n_all_trials):
         im1_pos = pol2cart(im_ecc, im1_theta)
         im2_pos = pol2cart(im_ecc, im2_theta)
 
-        # load peripheral images
-        if cong_array[itrial] == 1:
-            per_im = cue_array[itrial]
-        else:
-            per_im = np.setdiff1d(['f', 'h'], cue_array[itrial])[0]
+        im1 = im1_array[itrial][0]
+        im2 = np.setdiff1d(['f', 'h'], im1)[0]
 
         im_directory = os.path.join(image_folder, 'cyc03_source',
-                                    f'{per_im}1.png')
+                                    f'{im1}1.png')
         im1_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
                                    opacity=im_opac,
                                    pos=im1_pos)
+
+        im_directory = os.path.join(image_folder, 'cyc03_source',
+                                    f'{im2}1.png')
         im2_per = visual.ImageStim(win,
                                    image=im_directory,
                                    size=im_size,
@@ -335,8 +332,9 @@ for itrial in range(n_all_trials):
     # soa task
     if soa_task[itrial]:
         print('=================================')
-        print(f'*** im1 frame: {im1_frame} ***')
-        print(f'*** im2 frame: {im2_frame} ***')
+        print(f'*** cue: {cue_array[itrial]} ***')
+        print(f'*** im1: {im1_array[itrial]} ***')
+        print(f'*** soa: {soa_array[itrial]} ***')
         for iframe in range(max(im1_frame, im2_frame) + im_dur):
             # add central images
             h_cnt.draw()
@@ -371,7 +369,6 @@ for itrial in range(n_all_trials):
                 soa_resp = 'r'
             else:
                 soa_resp = np.nan
-            print(f'*** Congruency: {cong_array[itrial]}')
             print(f'*** SOA response: {soa_resp} ***')
             print(f'*** SOA RT: {soa_rt} ms ***')
             if (im1_frame > im2_frame) & (soa_resp == 'r'):
@@ -463,7 +460,7 @@ for itrial in range(n_all_trials):
         'trial_num': [itrial + 1],
         'frame_rate': [frame_rate],
         'cued_image': [cue_array[itrial]],
-        'congruency': [cong_array[itrial]],
+        'im1_category': [im1],
         'soa_cnd': [soa_array[itrial]],
         'im1_pos': [im1_pos],
         'im2_pos': [im2_pos],
