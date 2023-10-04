@@ -54,9 +54,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 subID = 'MS01'
 soa_corr_factor = 0
-n_soa = 11
-abs_soa_dt = 10  # frames
-rep_per_cnd = 24  # repetition per condition (factor of 4)
+n_soa = 7
+abs_soa_dt = 9  # frames
+rep_per_cnd = 48  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -93,7 +93,7 @@ gap_dur_arr = gap_dur_arr.astype(int)
 # /// fixation dot
 fixdot_size = .5
 fixdot_pos = (0, 0)
-fixdot_color = 'gray'
+fixdot_color = 'black'
 fixdot_dur = 1 * frame_rate  # sec x Hz = frames
 
 # /// image
@@ -122,17 +122,20 @@ cvis.test_framerate(win=win, nominal_fr=frame_rate)
 
 # /// CONDITIONING ///
 
-ind_shuffle = np.arange(int(round(n_all_trials/4)))
+n_cue_blocks = 4
 
-tail = np.full(int(n_att_trials/4), np.nan)
+ind_shuffle = np.arange(int(round(n_all_trials / n_cue_blocks)))
+
+tail = np.full(int(n_att_trials / n_cue_blocks), np.nan)
 
 # soa array
 soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
-soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd/4))
+soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd / n_cue_blocks))
 
 # congurency array
 cong_array_base = [-1, 1]
-cong_array_quad = np.tile(np.repeat(cong_array_base, int(rep_per_cnd/4/2)),
+cong_array_quad = np.tile(np.repeat(cong_array_base,
+                                    int(rep_per_cnd / n_cue_blocks / 2)),
                           n_soa)
 
 np.random.shuffle(ind_shuffle)
@@ -152,9 +155,9 @@ soa_array = np.concatenate((soa_array_quad1,
                             soa_array_quad3,
                             soa_array_quad4))
 cong_array = np.concatenate((cong_array_quad1,
-                            cong_array_quad2,
-                            cong_array_quad3,
-                            cong_array_quad4))
+                             cong_array_quad2,
+                             cong_array_quad3,
+                             cong_array_quad4))
 
 # indicate which task should be shown at each trial
 att_task = np.isnan(soa_array)
@@ -164,10 +167,10 @@ soa_task = ~att_task
 image_block_choice = np.random.choice([0, 1])
 if image_block_choice:
     cue_array = np.repeat(np.tile(['f', 'h'], 2),
-                          int(n_all_trials / 4))
+                          int(n_all_trials / n_cue_blocks))
 else:
     cue_array = np.repeat(np.tile(['h', 'f'], 2),
-                          int(n_all_trials / 4))
+                          int(n_all_trials / n_cue_blocks))
 
 keypress_flag = False
 
@@ -190,7 +193,7 @@ for itrial in range(n_all_trials):
 
     if itrial == int(pause_trials[pause_counter]):
         sfc.run_pause_screen(win, pause_counter + 1, n_blocks)
-        if pause_counter < n_blocks-1:
+        if pause_counter < n_blocks - 1:
             pause_counter += 1
 
     # -------------------------------
@@ -261,7 +264,8 @@ for itrial in range(n_all_trials):
         im1_frame = event_frame
         im2_frame = im1_frame + int(soa_array[itrial])
         # set image positions
-        im1_theta = np.random.choice(np.arange(135, 135+90 + 1))  # im1 left
+        im1_theta = np.random.choice(
+            np.arange(180 - 30, 180 + 30 + 1))  # im1 left
         im2_theta = im1_theta + 180  # im2 right
         im1_pos = pol2cart(im_ecc, im1_theta)
         im2_pos = pol2cart(im_ecc, im2_theta)
@@ -315,7 +319,8 @@ for itrial in range(n_all_trials):
         h_cnt.draw()
         f_cnt.draw()
         # add fixation mark
-        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
+        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                       color=fixdot_color)
         win.flip()
 
     # soa task
@@ -328,16 +333,13 @@ for itrial in range(n_all_trials):
             h_cnt.draw()
             f_cnt.draw()
             # add fixation mark
-            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
+            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                           color=fixdot_color)
             # flash peripheral images
             if (iframe >= im1_frame) and (iframe <= im1_frame + im_dur):
                 im1_per.draw()
-                # if iframe == im1_frame:
-                # timer.reset()
             if (iframe >= im2_frame) and (iframe <= im2_frame + im_dur):
                 im2_per.draw()
-                # if iframe == im2_frame:
-                # delta_t = np.round(timer.getTime() * 1000)
 
             win.flip()
 
@@ -394,7 +396,8 @@ for itrial in range(n_all_trials):
             else:
                 h_cnt.draw()
                 f_cnt.draw()
-            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
+            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                           color=fixdot_color)
             win.flip()
 
             # check input keys
@@ -416,8 +419,7 @@ for itrial in range(n_all_trials):
 
         # feedback period
         for frame in range(int(.5 * frame_rate)):
-            cvis.addfixdot(win=win, size=fixdot_size * 1.5,
-                           pos=fixdot_pos,
+            cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
                            color=feedback_color)
             win.flip()
 

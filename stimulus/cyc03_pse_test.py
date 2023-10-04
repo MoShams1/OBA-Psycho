@@ -52,12 +52,12 @@ def show_delta_t(dt):
 
 def check_input(dt, itrial, delta_t_all, confirm_old_state):
     keymouse.escape_session()
-    key = event.getKeys(keyList=['left', 'right', 'return'])
+    key = event.getKeys(keyList=['left', 'right', 'space'])
     if 'left' in key:
         dt -= 1
     if 'right' in key:
         dt += 1
-    if 'return' in key:
+    if 'space' in key:
         delta_t_all[itrial] = delta_t
         print(f'dt array: {delta_t_all}')
         confirmation = True
@@ -77,7 +77,7 @@ subID = 'MS01'
 n_soa = 9
 abs_soa_dt = 9  # frames
 rep_per_cnd = 12  # repetition per condition (factor of 4)
-full_screen = False
+full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 frame_rate = 60
@@ -142,7 +142,8 @@ for itrial in range(ntrials):
         win.flip()
 
     # set image positions
-    im1_theta = np.random.choice(np.arange(135, 135 + 90 + 1))  # im1 left
+    im1_theta = np.random.choice(np.arange(180-30, 180+30 + 1))  # im1
+    # left
     im2_theta = im1_theta + 180  # im2 right
     im1_pos = pol2cart(im_ecc, im1_theta)
     im2_pos = pol2cart(im_ecc, im2_theta)
@@ -184,7 +185,7 @@ for itrial in range(ntrials):
                            color=fixdot_color)
             delta_t, confirmed = check_input(delta_t, itrial, delta_t_all,
                                              confirmed)
-            show_delta_t(delta_t)
+            # show_delta_t(delta_t)
             win.flip()
         if confirmed:
             print(f'{confirmed}')
@@ -201,7 +202,7 @@ for itrial in range(ntrials):
                 im2_per.draw()
             delta_t, confirmed = check_input(delta_t, itrial, delta_t_all,
                                              confirmed)
-            show_delta_t(delta_t)
+            # show_delta_t(delta_t)
             win.flip()
         if confirmed:
             print(f'{confirmed}')
@@ -211,7 +212,7 @@ for itrial in range(ntrials):
         delta_t_old = delta_t
         delta_t, confirmed = check_input(delta_t, itrial, delta_t_all,
                                          confirmed)
-        show_delta_t(delta_t)
+        # show_delta_t(delta_t)
         win.flip()
         if confirmed:
             print(f'{confirmed}')
