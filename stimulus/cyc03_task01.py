@@ -56,16 +56,16 @@ subID = 'MS01'
 soa_corr_factor = 0
 n_soa = 11
 abs_soa_dt = 10  # frames
-rep_per_cnd = 16  # repetition per condition (factor of 4)
+rep_per_cnd = 24  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
-# n_all_trials = round(n_soa_trials * 1)  # training SOA task
+n_all_trials = round(n_soa_trials * 1)  # training SOA task
 # n_all_trials = round(n_soa_trials * 1000)  # training Attention task
-n_all_trials = round(n_soa_trials * 1.363636)  # dual task
-n_att_trials = n_all_trials - n_soa_trials  # about 1/3 of all trials
+# n_all_trials = n_soa_trials + 88  # dual task (75% SOA; 25% att)
+n_att_trials = n_all_trials - n_soa_trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
 
@@ -91,9 +91,9 @@ gap_dur_arr = np.round(np.arange(1, 1.5, .1) * frame_rate)
 gap_dur_arr = gap_dur_arr.astype(int)
 
 # /// fixation dot
-fixdot_size = .7
+fixdot_size = .5
 fixdot_pos = (0, 0)
-fixdot_color = 'black'
+fixdot_color = 'gray'
 fixdot_dur = 1 * frame_rate  # sec x Hz = frames
 
 # /// image
@@ -163,11 +163,11 @@ soa_task = ~att_task
 # cue array (1: face, 2: house)
 image_block_choice = np.random.choice([0, 1])
 if image_block_choice:
-    cue_array = np.repeat(np.tile(['f', 'h'], n_blocks),
-                          int(n_all_trials / n_blocks))
+    cue_array = np.repeat(np.tile(['f', 'h'], 2),
+                          int(n_all_trials / 4))
 else:
-    cue_array = np.repeat(np.tile(['h', 'f'], n_blocks),
-                          int(n_all_trials / n_blocks))
+    cue_array = np.repeat(np.tile(['h', 'f'], 2),
+                          int(n_all_trials / 4))
 
 keypress_flag = False
 
@@ -193,10 +193,9 @@ for itrial in range(n_all_trials):
         if pause_counter < n_blocks-1:
             pause_counter += 1
 
-        # -------------------------------
-
+    # -------------------------------
     # decide on when the tilt/flash should occur
-    event_time_s = np.random.choice(np.arange(0, 1.1, .1))
+    event_time_s = np.random.choice(np.arange(1, 2.1, .1))
     event_frame = int(event_time_s * frame_rate)
 
     # decide on tilt magnitude
@@ -297,11 +296,11 @@ for itrial in range(n_all_trials):
     soa_resp = np.nan
 
     # gap period
-    for frame in range(int(2 * frame_rate)):
+    for frame in range(int(1 * frame_rate)):
         win.flip()
 
     # cue period
-    for frame in range(int(1 * frame_rate)):
+    for frame in range(int(.5 * frame_rate)):
         cvis.addprobe(win, radius=1.5, color=[-.5, -.5, -.5], pos=(0, 0))
         cue.draw()
         win.flip()
@@ -311,13 +310,12 @@ for itrial in range(n_all_trials):
         win.flip()
 
     # overlap period
-    for frame in range(int(2 * frame_rate)):
+    for frame in range(int(1 * frame_rate)):
         # add central images
         h_cnt.draw()
         f_cnt.draw()
         # add fixation mark
-        # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-        #                color=fixdot_color)
+        cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
         win.flip()
 
     # soa task
@@ -330,8 +328,7 @@ for itrial in range(n_all_trials):
             h_cnt.draw()
             f_cnt.draw()
             # add fixation mark
-            # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-            #                color=fixdot_color)
+            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
             # flash peripheral images
             if (iframe >= im1_frame) and (iframe <= im1_frame + im_dur):
                 im1_per.draw()
@@ -346,10 +343,9 @@ for itrial in range(n_all_trials):
 
         # response period
         timer.reset()
+        cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
+                       color=fixdot_color)
         win.flip()
-        # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-        #                color=fixdot_color)
-        # win.flip()
         keymouse.escape_session()
         pressed_key = event.waitKeys(keyList=['left', 'right', 'escape'])
 
@@ -398,8 +394,7 @@ for itrial in range(n_all_trials):
             else:
                 h_cnt.draw()
                 f_cnt.draw()
-            # cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
-            #                color=fixdot_color)
+            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos)
             win.flip()
 
             # check input keys
