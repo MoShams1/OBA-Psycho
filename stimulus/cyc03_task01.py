@@ -56,7 +56,7 @@ subID = 'MS01'
 soa_corr_factor = 0
 n_soa = 7
 abs_soa_dt = 9  # frames
-rep_per_cnd = 48  # repetition per condition (factor of 4)
+rep_per_cnd = 24  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -106,6 +106,7 @@ im1_frames = np.round(np.arange(1, 1.5, .1) * frame_rate)
 im1_frames = im1_frames.astype(int)
 tilt_dur = int(.25 * frame_rate)
 
+soa_response_grace_time = 300  # ms
 att_response_grace_time = int(1 * frame_rate)
 # ----------------------------------------------------------------------------
 
@@ -377,9 +378,13 @@ for itrial in range(n_all_trials):
                 print('*** response eval: ---')
 
         # feedback period
-        for frame in range(int(.5 * frame_rate)):
+        if soa_rt <= soa_response_grace_time:
+            soa_feedback_color = 'darkgreen'
+        else:
+            soa_feedback_color = 'darkred'
+        for frame in range(int(.3 * frame_rate)):
             cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
-                           color='black')
+                           color=soa_feedback_color)
             win.flip()
 
     if att_task[itrial]:
@@ -418,7 +423,7 @@ for itrial in range(n_all_trials):
             feedback_color = 'darkred'
 
         # feedback period
-        for frame in range(int(.5 * frame_rate)):
+        for frame in range(int(.3 * frame_rate)):
             cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
                            color=feedback_color)
             win.flip()
@@ -456,7 +461,7 @@ for itrial in range(n_all_trials):
         'tilt_duration': [tilt_dur],
         'tilt_mag_deg': [tilt_mag / 10],
         'tilt_seen': [tilt_seen],
-        'corr_resp_flag': [correct_resp]
+        'att_corr_resp_flag': [correct_resp]
     }
 
     # convert to data frame
