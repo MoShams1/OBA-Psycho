@@ -6,8 +6,9 @@ June 2023
 The subject's task is to decide which of the two peripheral images appeared
 first.
 
-12 repetitions
-9 SOAs conditions
+repetition per condition: 48
+number of SOA conditions: 7
+max SOA: 150 ms (9 frames)
 
 """
 
@@ -56,7 +57,7 @@ subID = 'MS01'
 soa_corr_factor = 0
 n_soa = 7
 abs_soa_dt = 9  # frames
-rep_per_cnd = 24  # repetition per condition (factor of 4)
+rep_per_cnd = 48  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -99,7 +100,6 @@ fixdot_dur = 1 * frame_rate  # sec x Hz = frames
 # /// image
 im_size = 2
 im_ecc = 6
-# im_opac = .2
 im_opac = .5
 im_dur = int(.1 * frame_rate)
 im1_frames = np.round(np.arange(1, 1.5, .1) * frame_rate)
@@ -305,17 +305,20 @@ for itrial in range(n_all_trials):
         win.flip()
 
     # cue period
-    for frame in range(int(.5 * frame_rate)):
+    # for frame in range(int(.5 * frame_rate)):
+    for frame in range(int(.2 * frame_rate)):
         cvis.addprobe(win, radius=1.5, color=[-.5, -.5, -.5], pos=(0, 0))
         cue.draw()
         win.flip()
 
     # gap period
-    for frame in range(int(.5 * frame_rate)):
+    # for frame in range(int(.5 * frame_rate)):
+    for frame in range(int(0 * frame_rate)):
         win.flip()
 
     # overlap period
-    for frame in range(int(1 * frame_rate)):
+    # for frame in range(int(1 * frame_rate)):
+    for frame in range(int(.6 * frame_rate)):
         # add central images
         h_cnt.draw()
         f_cnt.draw()
