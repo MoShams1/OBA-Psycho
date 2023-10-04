@@ -48,11 +48,11 @@ x_ms = x * 1000 / 60;
 
 left_resp = strcmp(resp, 'l');
 
-cue_ref = 'f';
+cue_ref = 'h';
 
 for isoa = 1:length(x)
-    ind = (soa == x(isoa)) & (cong == 1);
-%     ind = (soa == x(isoa)) & (cong == 1) & (strcmp(cue, cue_ref));
+%     ind = (soa == x(isoa)) & (cong == 1);
+    ind = (soa == x(isoa)) & (cong == 1) & (strcmp(cue, cue_ref));
     right_perc_cong(isoa) = sum(left_resp(ind)) / sum(ind) * 100;
     
     rt_cong(isoa) = mean(rt(ind));
@@ -64,8 +64,8 @@ for isoa = 1:length(x)
         right_perc_cong_boot(iboot, isoa) = sum(left_resp(sample_trials)) / length(sample_trials) * 100;
     end
 
-    ind = (soa == x(isoa)) & (cong == -1);
-%     ind = (soa == x(isoa)) & (cong == -1) & (strcmp(cue, cue_ref));
+%     ind = (soa == x(isoa)) & (cong == -1);
+    ind = (soa == x(isoa)) & (cong == -1) & (strcmp(cue, cue_ref));
     right_perc_incong(isoa) = sum(left_resp(ind)) / sum(ind) * 100;
 
     rt_incong(isoa) = mean(rt(ind));
@@ -84,10 +84,10 @@ figure('units','normalized','outerposition',[.3 2 .3 .7])
 
 subplot(2,1,1)
 hold on
-errorbar(x_ms, median(right_perc_cong_boot), std(right_perc_cong_boot),...
-    '-ok')
-errorbar(x_ms, median(right_perc_incong_boot), std(right_perc_incong_boot),...
-    '-or')
+hcong = errorbar(x_ms, median(right_perc_cong_boot), std(right_perc_cong_boot),...
+    '-ok');
+hincong = errorbar(x_ms, median(right_perc_incong_boot), std(right_perc_incong_boot),...
+    '-or');
 yline(50)
 xline(0)
 legend cong incong location northwest
@@ -104,9 +104,8 @@ x_ms = x * 1000 / 60;
 
 subplot(2,1,2)
 hold on
-errorbar(x_ms, rt_cong, rt_err_cong, '-ok')
-errorbar(x_ms, rt_incong, rt_err_incong, '-or')
-legend cong incong location northwest
+errorbar(x_ms, rt_cong, rt_err_cong, '-ok', 'linewidth', 1);
+errorbar(x_ms, rt_incong, rt_err_incong, '-or', 'linewidth', 1);
 cleanplot
 
 xlabel 'Left image lead (ms)'
@@ -115,6 +114,10 @@ ylabel 'Reaction time (ms)'
 %% Models
 y_cong = right_perc_cong';
 y_incong = right_perc_incong';
+x_model = -250:250;
+% x_ms = [x_ms(1:3)'-100 x_ms' x_ms(end-2:end)'+100]';
+% y_cong = [0 0 0 right_perc_cong 100 100 100]';
+% y_incong = [0 0 0 right_perc_incong 100 100 100]';
 
 % [x_ms, yData] = prepareCurveData(x_ms, y_cong);
 
@@ -122,21 +125,24 @@ y_incong = right_perc_incong';
 ft = fittype( 'a/(1+exp(-k*(x-x0)))', 'independent', 'x', 'dependent', 'y' );
 opts = fitoptions( 'Method', 'NonlinearLeastSquares');
 opts.Display = 'Off';
-opts.Lower = [-Inf -Inf -150];
-opts.Upper = [Inf Inf 150];
+opts.Lower = [-Inf 0 -150];
+opts.Upper = [Inf 1 150];
 opts.StartPoint = [100 .5 0];
 
 % Fit model to data.
 [fitresult_cong, gof_cong] = fit(x_ms, y_cong, ft, opts);
-model_cong = feval(fitresult_cong, x_ms);
+model_cong = feval(fitresult_cong, x_model);
 
 [fitresult_incong, gof_incong] = fit(x_ms, y_incong, ft, opts);
-model_incong = feval(fitresult_incong, x_ms);
+model_incong = feval(fitresult_incong, x_model);
 
 subplot(2,1,1)
 hold on
-plot(x_ms, model_cong, '--k', 'linewidth', 1.5);
-plot(x_ms, model_incong, '--r', 'linewidth', 1.5);
+hcongm = plot(x_model, model_cong, '--k', 'linewidth', 1.5);
+hincongm = plot(x_model, model_incong, '--r', 'linewidth', 1.5);
+
+legend([hcong hincong hcongm hincongm],...
+    'cong', 'incong', 'cong-model', 'incong-model', 'location', 'northwest');
 
 adjr2_cong = gof_cong.adjrsquare
 adjr2_incong = gof_incong.adjrsquare
@@ -145,10 +151,10 @@ adjr2_incong = gof_incong.adjrsquare
 
 figure
 hold on
-plot(x_ms-fitresult_cong.x0, y_cong, 'ok', 'linewidth', 1.5)
-hcong = plot(x_ms-fitresult_cong.x0, model_cong, 'k', 'linewidth', 1.5);
-plot(x_ms-fitresult_incong.x0, y_incong, 'or', 'linewidth', 1.5)
-hincong = plot(x_ms-fitresult_incong.x0, model_incong, 'r', 'linewidth', 1.5);
+hcong = plot(x_ms-fitresult_cong.x0, y_cong, 'ok', 'linewidth', 1);
+hcongm = plot(x_model-fitresult_cong.x0, model_cong, 'k', 'linewidth', 1.5);
+hincong = plot(x_ms-fitresult_incong.x0, y_incong, 'or', 'linewidth', 1);
+hincongm = plot(x_model-fitresult_incong.x0, model_incong, 'r', 'linewidth', 1.5);
 
 xlim([-250, 250])
 ylim([-10 110])
@@ -158,7 +164,8 @@ ylabel 'Reporting left image first (%)'
 xline(0)
 yline(50)
 
-legend([hcong, hincong], 'congruent', 'incongruent', 'location', 'northwest')
+legend([hcong hincong hcongm hincongm],...
+    'cong', 'incong', 'cong-model', 'incong-model', 'location', 'northwest');
 
 cleanplot
 
