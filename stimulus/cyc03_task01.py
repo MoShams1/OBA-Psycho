@@ -53,11 +53,14 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01'
+subID = 'MS01_rep24_log_accuracy'
 soa_corr_factor = 0
-n_soa = 7
-abs_soa_dt = 9  # frames
-rep_per_cnd = 48  # repetition per condition (factor of 4)
+# n_soa = 7
+n_soa = 8
+# abs_soa_dt = 9  # frames
+abs_soa_dt = 8  # frames
+# rep_per_cnd = 48  # repetition per condition (factor of 4)
+rep_per_cnd = 24  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
@@ -130,7 +133,8 @@ ind_shuffle = np.arange(int(round(n_all_trials / n_cue_blocks)))
 tail = np.full(int(n_att_trials / n_cue_blocks), np.nan)
 
 # soa array
-soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
+# soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
+soa_array_base = np.array([-8, -4, -2, -1, 1, 2, 4, 8]) + soa_corr_factor
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd / n_cue_blocks))
 
 # congurency array
@@ -299,9 +303,10 @@ for itrial in range(n_all_trials):
     correct_resp = np.nan
     soa_rt = np.nan
     soa_resp = np.nan
+    soa_resp_eval = np.nan
 
     # gap period
-    for frame in range(int(1 * frame_rate)):
+    for frame in range(int(.5 * frame_rate)):
         win.flip()
 
     # cue period
@@ -318,7 +323,7 @@ for itrial in range(n_all_trials):
 
     # overlap period
     # for frame in range(int(1 * frame_rate)):
-    for frame in range(int(.6 * frame_rate)):
+    for frame in range(int(.5 * frame_rate)):
         # add central images
         h_cnt.draw()
         f_cnt.draw()
@@ -370,18 +375,26 @@ for itrial in range(n_all_trials):
             print(f'*** SOA response: {soa_resp} ***')
             print(f'*** SOA RT: {soa_rt} ms ***')
             if (im1_frame > im2_frame) & (soa_resp == 'r'):
+                soa_resp_eval = True
                 print('*** response eval: correct')
             if (im1_frame < im2_frame) & (soa_resp == 'l'):
+                soa_resp_eval = True
                 print('*** response eval: correct')
             if (im1_frame > im2_frame) & (soa_resp == 'l'):
+                soa_resp_eval = False
                 print('*** response eval: wrong')
             if (im1_frame < im2_frame) & (soa_resp == 'r'):
+                soa_resp_eval = False
                 print('*** response eval: wrong')
             if im1_frame == im2_frame:
                 print('*** response eval: ---')
 
         # feedback period
-        if soa_rt <= soa_response_grace_time:
+        # if soa_rt <= soa_response_grace_time:
+        #     soa_feedback_color = 'darkgreen'
+        # else:
+        #     soa_feedback_color = 'darkred'
+        if soa_resp_eval:
             soa_feedback_color = 'darkgreen'
         else:
             soa_feedback_color = 'darkred'
@@ -459,6 +472,7 @@ for itrial in range(n_all_trials):
         'flash_dur': [im_dur],
         'soa_rt': [soa_rt],
         'soa_response': [soa_resp],
+        'soa_resp_eval': [soa_resp_eval],
         'tilt_image': [tilt_cat],
         'tilt_frame': [tilt_frame],
         'tilt_duration': [tilt_dur],
