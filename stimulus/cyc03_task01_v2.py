@@ -8,7 +8,11 @@ first.
 
 repetition per condition: 48
 number of SOA conditions: 7
-max SOA: 100 ms (6 frames)
+max SOA: 6 frames (= 100 ms)
+
+number of SOA trials = 48 * 7 = 336
+number of Att trials = 336 * 1.33 = 112
+number of all trials = 448
 
 """
 
@@ -106,7 +110,6 @@ im1_frames = np.round(np.arange(1, 1.5, .1) * frame_rate)
 im1_frames = im1_frames.astype(int)
 tilt_dur = int(.25 * frame_rate)
 
-soa_response_grace_time = 300  # ms
 att_response_grace_time = int(1 * frame_rate)
 # ----------------------------------------------------------------------------
 
@@ -391,10 +394,6 @@ for itrial in range(n_all_trials):
                 print('*** response eval: ---')
 
         # feedback period
-        # if soa_rt <= soa_response_grace_time:
-        #     soa_feedback_color = 'darkgreen'
-        # else:
-        #     soa_feedback_color = 'darkred'
         if soa_resp_eval:
             soa_feedback_color = 'darkgreen'
         else:
