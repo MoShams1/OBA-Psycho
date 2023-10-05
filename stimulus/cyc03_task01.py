@@ -62,12 +62,12 @@ abs_soa_dt = 8  # frames
 # rep_per_cnd = 48  # repetition per condition (factor of 4)
 rep_per_cnd = 24  # repetition per condition (factor of 4)
 n_blocks = 8
-full_screen = True
+full_screen = False
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
-n_all_trials = round(n_soa_trials * 1)  # training SOA task
-# n_all_trials = round(n_soa_trials * 1000)  # training Attention task
+# n_all_trials = round(n_soa_trials * 1)  # training SOA task
+n_all_trials = round(n_soa_trials * 1000)  # training Attention task
 # n_all_trials = n_soa_trials + 88  # dual task (75% SOA; 25% att)
 n_att_trials = n_all_trials - n_soa_trials
 frame_rate = 60

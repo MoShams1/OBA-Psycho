@@ -1,14 +1,14 @@
 """
 Mo Shams <MShamsCBR@gmail.com>
-June 2023
+Oct 2023
 ---
 
 The subject's task is to decide which of the two peripheral images appeared
 first.
 
 repetition per condition: 48
-number of SOA conditions: 8
-max SOA: 133.33 ms (8 frames)
+number of SOA conditions: 7
+max SOA: 100 ms (6 frames)
 
 """
 
@@ -53,22 +53,19 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01'
+subID = 'test'
 soa_corr_factor = 0
-# n_soa = 7
-n_soa = 8
-# abs_soa_dt = 9  # frames
-abs_soa_dt = 8  # frames
-# rep_per_cnd = 48  # repetition per condition (factor of 4)
-rep_per_cnd = 24  # repetition per condition (factor of 4)
+n_soa = 7
+abs_soa_dt = 6  # frames
+rep_per_cnd = 48  # repetition per condition (factor of 4)
 n_blocks = 8
 full_screen = True
 running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
-n_all_trials = round(n_soa_trials * 1)  # training SOA task
+# n_all_trials = round(n_soa_trials * 1)  # training SOA task
 # n_all_trials = round(n_soa_trials * 1000)  # training Attention task
-# n_all_trials = n_soa_trials + 88  # dual task (75% SOA; 25% att)
+n_all_trials = n_soa_trials + 112  # dual task (75% SOA; 25% att)
 n_att_trials = n_all_trials - n_soa_trials
 frame_rate = 60
 # ----------------------------------------------------------------------------
@@ -133,8 +130,7 @@ ind_shuffle = np.arange(int(round(n_all_trials / n_cue_blocks)))
 tail = np.full(int(n_att_trials / n_cue_blocks), np.nan)
 
 # soa array
-# soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
-soa_array_base = np.array([-8, -4, -2, -1, 1, 2, 4, 8]) + soa_corr_factor
+soa_array_base = np.linspace(-abs_soa_dt, abs_soa_dt, n_soa) + soa_corr_factor
 soa_array_quad = np.repeat(soa_array_base, int(rep_per_cnd / n_cue_blocks))
 
 # congurency array
@@ -203,7 +199,7 @@ for itrial in range(n_all_trials):
 
     # -------------------------------
     # decide on when the tilt/flash should occur
-    event_time_s = np.random.choice(np.arange(1, 2.1, .1))
+    event_time_s = np.random.choice(np.arange(1.5, 2.1, .1))
     event_frame = int(event_time_s * frame_rate)
 
     # decide on tilt magnitude
@@ -310,20 +306,18 @@ for itrial in range(n_all_trials):
         win.flip()
 
     # cue period
-    # for frame in range(int(.5 * frame_rate)):
-    for frame in range(int(.2 * frame_rate)):
+    for frame in range(int(.5 * frame_rate)):
         cvis.addprobe(win, radius=1.5, color=[-.5, -.5, -.5], pos=(0, 0))
+        cvis.addprobe(win, radius=1.1, color=[0, 0, 0], pos=(0, 0))
         cue.draw()
         win.flip()
 
     # gap period
-    # for frame in range(int(.5 * frame_rate)):
     for frame in range(int(0 * frame_rate)):
         win.flip()
 
     # overlap period
-    # for frame in range(int(1 * frame_rate)):
-    for frame in range(int(.5 * frame_rate)):
+    for frame in range(int(0 * frame_rate)):
         # add central images
         h_cnt.draw()
         f_cnt.draw()
