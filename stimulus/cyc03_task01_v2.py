@@ -53,7 +53,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'MS01_rep24_log_accuracy'
+subID = 'MS01'
 soa_corr_factor = 0
 # n_soa = 7
 n_soa = 8
@@ -62,8 +62,8 @@ abs_soa_dt = 8  # frames
 # rep_per_cnd = 48  # repetition per condition (factor of 4)
 rep_per_cnd = 24  # repetition per condition (factor of 4)
 n_blocks = 8
-full_screen = False
-running_device = 'mac'  # 'linux' or 'mac'
+full_screen = True
+running_device = 'linux'  # 'linux' or 'mac'
 
 n_soa_trials = rep_per_cnd * n_soa
 n_all_trials = round(n_soa_trials * 1)  # training SOA task
@@ -109,7 +109,6 @@ im1_frames = np.round(np.arange(1, 1.5, .1) * frame_rate)
 im1_frames = im1_frames.astype(int)
 tilt_dur = int(.25 * frame_rate)
 
-soa_resp_wait_time = 1  # sec
 soa_response_grace_time = 300  # ms
 att_response_grace_time = int(1 * frame_rate)
 # ----------------------------------------------------------------------------
@@ -353,11 +352,18 @@ for itrial in range(n_all_trials):
 
             win.flip()
 
+        # waiting period
+        for iframe in range(
+                int(np.random.choice(np.arange(1, 1.6, .1) * frame_rate))):
+            cvis.addfixdot(win=win, size=fixdot_size, pos=fixdot_pos,
+                           color=fixdot_color)
+            win.flip()
         # response period
-        timer.reset()
-        cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
-                       color=fixdot_color)
+        gosignal = visual.TextStim(win=win, text='<      >', height=.4,
+                                   color='black')
+        gosignal.draw()
         win.flip()
+        timer.reset()
         keymouse.escape_session()
         pressed_key = event.waitKeys(keyList=['left', 'right', 'escape'])
 
@@ -391,8 +397,6 @@ for itrial in range(n_all_trials):
                 print('*** response eval: ---')
 
         # feedback period
-        for frame in range(int(soa_resp_wait_time * frame_rate)):
-            win.flip()
         # if soa_rt <= soa_response_grace_time:
         #     soa_feedback_color = 'darkgreen'
         # else:
@@ -402,6 +406,9 @@ for itrial in range(n_all_trials):
         else:
             soa_feedback_color = 'darkred'
         for frame in range(int(.3 * frame_rate)):
+            gosignal = visual.TextStim(win=win, text='<      >', height=.4,
+                                       color='black')
+            gosignal.draw()
             cvis.addfixdot(win=win, size=fixdot_size * 1.5, pos=fixdot_pos,
                            color=soa_feedback_color)
             win.flip()
