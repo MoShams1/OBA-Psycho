@@ -34,10 +34,11 @@ for i = 1:numel(soa_cell)
     end
 end
 
-obj = 'f';
+obj = 'h';
 other_obj = setdiff(['f','h'],obj);
 
-ind_att = strcmp(im1_cat, obj) & (soa>0) & (strcmp(cue, obj));
+% ind_att = strcmp(im1_cat, obj) & (soa>0) & (strcmp(cue, obj));
+ind_att = strcmp(cue, obj);
 p_att = sum(resp_eval(ind_att)) / sum(ind_att) * 100;    
 rt_att = mean(rt(ind_att));
 rt_att_err = SE(rt(ind_att));
@@ -47,7 +48,8 @@ for iboot = 1:nboot
     p_att_boot(iboot,1) = sum(resp_eval(sample_trials)) / length(sample_trials) * 100;
 end
 
-ind_unatt = strcmp(im1_cat, obj) & (soa>0) & (strcmp(cue, other_obj));
+% ind_unatt = strcmp(im1_cat, obj) & (soa>0) & (strcmp(cue, other_obj));
+ind_unatt = strcmp(cue, other_obj);
 p_unatt = sum(resp_eval(ind_unatt)) / sum(ind_unatt) * 100;    
 rt_unatt = mean(rt(ind_unatt));
 rt_unatt_err = SE(rt(ind_unatt));
