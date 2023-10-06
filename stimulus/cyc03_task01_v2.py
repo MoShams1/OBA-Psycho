@@ -57,7 +57,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # /// GENERAL SETTINGS ///
 
-subID = 'test'
+subID = 'AD01_fullTask'
 soa_corr_factor = 0
 n_soa = 7
 abs_soa_dt = 6  # frames
